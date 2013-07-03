@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.TestOnly;
 
-import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
-import static com.squareup.picasso.Utils.checkNotMain;
 import static com.squareup.picasso.Utils.createKey;
 
 /** Fluent API for building an image download request. */
@@ -290,16 +288,14 @@ public class RequestBuilder {
 
   /** Synchronously fulfill this request. Must not be called from the main thread. */
   public Bitmap get() throws IOException {
-    checkNotMain();
-
     if (uri == null && resourceId == 0) {
       return null;
     }
 
     Request request =
         new Request(picasso, uri, resourceId, null, options, transformations, skipCache, false, 0,
-            null);
-    return picasso.resolveRequest(request);
+            null, null);
+    return picasso.execute(request);
   }
 
   /**
@@ -332,17 +328,19 @@ public class RequestBuilder {
       throw new IllegalArgumentException("Target must not be null.");
     }
 
-    boolean hasItemToLoad = uri != null || resourceId != 0;
+    if (uri == null && resourceId == 0) {
+      picasso.cancelRequest(target);
+      return;
+    }
 
-    if (hasItemToLoad) {
-      // Look for the target bitmap in the memory cache without moving to a background thread.
-      String requestKey = createKey(uri, resourceId, options, transformations);
-      Bitmap bitmap = picasso.quickMemoryCacheCheck(target, uri, requestKey);
-      if (bitmap != null) {
-        PicassoDrawable.setBitmap(target, picasso.context, bitmap, MEMORY, noFade,
-            picasso.debugging);
-        return;
-      }
+    String requestKey = createKey(uri, resourceId, options, transformations);
+
+    // Look for the target bitmap in the memory cache without moving to a background thread.
+    Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
+    if (bitmap != null) {
+      picasso.cancelRequest(target);
+      target.setImageBitmap(bitmap);
+      return;
     }
 
     if (placeholderResId != 0 || placeholderDrawable != null) {
@@ -352,35 +350,36 @@ public class RequestBuilder {
       target.setImageDrawable(null);
     }
 
-    if (hasItemToLoad) {
-      Request request =
-          new Request(picasso, uri, resourceId, target, options, transformations, skipCache, noFade,
-              errorResId, errorDrawable);
-      picasso.submit(request);
-    } else {
-      picasso.cancelRequest(target);
-    }
+    Request request =
+        new Request(picasso, uri, resourceId, target, options, transformations, skipCache, noFade,
+            errorResId, errorDrawable, requestKey);
+
+    picasso.submit(request);
   }
 
   private void makeTargetRequest(Target target, boolean strong) {
     if (target == null) {
       throw new IllegalArgumentException("Target must not be null.");
     }
+
     if (uri == null && resourceId == 0) {
       picasso.cancelRequest(target);
       return;
     }
 
     String requestKey = createKey(uri, resourceId, options, transformations);
-    Bitmap bitmap = picasso.quickMemoryCacheCheck(target, uri, requestKey);
+
+    Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
     if (bitmap != null) {
+      picasso.cancelRequest(target);
       target.onSuccess(bitmap);
       return;
     }
 
     Request request =
         new TargetRequest(picasso, uri, resourceId, target, strong, options, transformations,
-            skipCache);
+            skipCache, requestKey);
+
     picasso.submit(request);
   }
 }

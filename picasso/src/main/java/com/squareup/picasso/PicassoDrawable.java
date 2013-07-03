@@ -36,7 +36,7 @@ final class PicassoDrawable extends Drawable {
   // Only accessed from main thread.
   private static final Paint DEBUG_PAINT = new Paint();
 
-  private static final float FADE_DURATION = 200f; //ms
+  private static final float FADE_DURATION = 200; //ms
 
   /**
    * Create or update the drawable on the target {@link ImageView} to display the supplied bitmap

@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.ImageView;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -188,6 +189,7 @@ public class Picasso {
     return stats.createSnapshot();
   }
 
+  // used by into() and fetch() requests.
   void submit(Request request) {
     Object target = request.getTarget();
     if (target == null) return;
@@ -196,10 +198,11 @@ public class Picasso {
     dispatcher.dispatchSubmit(request);
   }
 
-  Bitmap execute(Request request) {
+  // Used by get() requests.
+  Bitmap execute(Request request) throws IOException {
     checkNotMain();
-    // TODO;
-    return null;
+    BitmapHunter hunter = BitmapHunter.forRequest(context, dispatcher, request, downloader);
+    return hunter.hunt();
   }
 
   Bitmap quickMemoryCacheCheck(String key) {

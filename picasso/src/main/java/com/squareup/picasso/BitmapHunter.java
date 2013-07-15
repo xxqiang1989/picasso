@@ -50,17 +50,7 @@ abstract class BitmapHunter implements Runnable {
 
   @Override public void run() {
     try {
-      Bitmap bitmap = load(uri, options);
-
-      if (options != null) {
-        bitmap = transformResult(options, bitmap, options.exifRotation);
-      }
-
-      if (transformations != null) {
-        bitmap = applyCustomTransformations(transformations, bitmap);
-      }
-
-      result = bitmap;
+      result = hunt();
 
       if (result == null) {
         dispatcher.dispatchFailed(this);
@@ -73,6 +63,20 @@ abstract class BitmapHunter implements Runnable {
   }
 
   abstract Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException;
+
+  Bitmap hunt() throws IOException {
+    Bitmap bitmap = load(uri, options);
+
+    if (options != null) {
+      bitmap = transformResult(options, bitmap, options.exifRotation);
+    }
+
+    if (transformations != null) {
+      bitmap = applyCustomTransformations(transformations, bitmap);
+    }
+
+    return bitmap;
+  }
 
   void attach(Request request) {
     joined.add(request);

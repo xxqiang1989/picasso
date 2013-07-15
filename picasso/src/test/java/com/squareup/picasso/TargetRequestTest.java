@@ -42,7 +42,7 @@ public class TargetRequestTest {
     };
     Picasso picasso = mock(Picasso.class);
     TargetRequest tr =
-        new TargetRequest(picasso, URI_1, 0, bad, false, null, null, false, URI_KEY_1);
+        new TargetRequest(picasso, URI_1, 0, bad, null, null, false, URI_KEY_1);
     try {
       tr.complete(BITMAP_1);
       fail();

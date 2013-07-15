@@ -377,7 +377,7 @@ public class RequestBuilder {
     }
 
     Request request =
-        new TargetRequest(picasso, uri, resourceId, target, strong, options, transformations,
+        new TargetRequest(picasso, uri, resourceId, target, options, transformations,
             skipCache, requestKey);
 
     picasso.submit(request);

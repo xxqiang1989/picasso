@@ -24,7 +24,7 @@ final class TargetRequest extends Request {
 
   private final WeakReference<Target> weakTarget;
 
-  TargetRequest(Picasso picasso, Uri uri, int resourceId, Target target, boolean strong,
+  TargetRequest(Picasso picasso, Uri uri, int resourceId, Target target,
       PicassoBitmapOptions bitmapOptions, List<Transformation> transformations, boolean skipCache,
       String key) {
     super(picasso, uri, resourceId, null, bitmapOptions, transformations, skipCache, false, 0, null,

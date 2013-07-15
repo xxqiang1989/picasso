@@ -117,10 +117,6 @@ final class Utils {
     }
   }
 
-  static String createKey(Request request) {
-    return createKey(request.uri, request.resourceId, request.options, request.transformations);
-  }
-
   static String createKey(Uri uri, int resourceId, PicassoBitmapOptions options,
       List<Transformation> transformations) {
     StringBuilder builder;

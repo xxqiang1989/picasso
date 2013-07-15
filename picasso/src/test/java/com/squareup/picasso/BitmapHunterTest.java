@@ -19,8 +19,6 @@ import static com.squareup.picasso.BitmapHunter.forRequest;
 import static com.squareup.picasso.BitmapHunter.transformResult;
 import static com.squareup.picasso.TestUtils.BITMAP_1;
 import static com.squareup.picasso.TestUtils.CONTACT_KEY_1;
-import static com.squareup.picasso.TestUtils.CONTACT_PHOTO_KEY_1;
-import static com.squareup.picasso.TestUtils.CONTACT_PHOTO_URI_1;
 import static com.squareup.picasso.TestUtils.CONTACT_URI_1;
 import static com.squareup.picasso.TestUtils.CONTENT_1_URL;
 import static com.squareup.picasso.TestUtils.CONTENT_KEY_1;

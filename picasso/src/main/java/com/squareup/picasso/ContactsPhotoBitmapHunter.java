@@ -1,20 +1,37 @@
 package com.squareup.picasso;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-class ContactsPhotoBitmapHunter extends ContentStreamBitmapHunter {
+import static com.squareup.picasso.Utils.calculateInSampleSize;
+
+class ContactsPhotoBitmapHunter extends StreamBitmapHunter {
+
+  final Context context;
 
   ContactsPhotoBitmapHunter(Context context, Dispatcher dispatcher, Request request) {
-    super(context, dispatcher, request);
+    super(dispatcher, request);
+    this.context = context;
   }
 
-  @Override InputStream getInputStream(ContentResolver contentResolver, Uri uri)
+  @Override InputStream getInputStream() throws IOException {
+    return Utils.getContactPhotoStream(context.getContentResolver(), uri);
+  }
+
+  @Override Bitmap decodeStream(InputStream stream, PicassoBitmapOptions options)
       throws IOException {
-    return Utils.getContactPhotoStream(contentResolver, uri);
+    if (options != null && options.inJustDecodeBounds) {
+      InputStream is = null;
+      try {
+        BitmapFactory.decodeStream(is, null, options);
+      } finally {
+        Utils.closeQuietly(is);
+      }
+      calculateInSampleSize(options);
+    }
+    return BitmapFactory.decodeStream(stream, null, options);
   }
 }

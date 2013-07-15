@@ -2,14 +2,13 @@ package com.squareup.picasso;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import java.io.IOException;
 import java.io.InputStream;
 
 import static com.squareup.picasso.Downloader.Response;
 import static com.squareup.picasso.Utils.calculateInSampleSize;
 
-class NetworkBitmapHunter extends BitmapHunter {
+class NetworkBitmapHunter extends StreamBitmapHunter {
   private final Downloader downloader;
 
   public NetworkBitmapHunter(Dispatcher dispatcher, Request request, Downloader downloader) {
@@ -17,12 +16,12 @@ class NetworkBitmapHunter extends BitmapHunter {
     this.downloader = downloader;
   }
 
-  @Override Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException {
+  @Override InputStream getInputStream() throws IOException {
     Response response = downloader.load(uri, false);
-    return decodeStream(response.stream, options);
+    return response.stream;
   }
 
-  Bitmap decodeStream(InputStream stream, PicassoBitmapOptions options) throws IOException {
+  @Override Bitmap decodeStream(InputStream stream, PicassoBitmapOptions options) throws IOException {
     if (stream == null) {
       return null;
     }

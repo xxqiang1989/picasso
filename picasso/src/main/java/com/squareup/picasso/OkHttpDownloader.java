@@ -17,7 +17,6 @@ package com.squareup.picasso;
 
 import android.content.Context;
 import android.net.Uri;
-import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.okhttp.OkHttpClient;
 import java.io.File;
 import java.io.IOException;

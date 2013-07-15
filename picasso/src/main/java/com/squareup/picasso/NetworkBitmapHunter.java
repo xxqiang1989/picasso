@@ -21,7 +21,8 @@ class NetworkBitmapHunter extends StreamBitmapHunter {
     return response.stream;
   }
 
-  @Override Bitmap decodeStream(InputStream stream, PicassoBitmapOptions options) throws IOException {
+  @Override Bitmap decodeStream(InputStream stream, PicassoBitmapOptions options)
+      throws IOException {
     if (stream == null) {
       return null;
     }

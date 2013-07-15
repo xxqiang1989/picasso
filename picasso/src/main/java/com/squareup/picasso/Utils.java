@@ -57,9 +57,8 @@ final class Utils {
   private static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
   private static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
   private static final int MAX_MEM_CACHE_SIZE = 20 * 1024 * 1024; // 20MB
-  private static final String[] CONTENT_ORIENTATION = new String[] {
-      MediaStore.Images.ImageColumns.ORIENTATION
-  };
+  private static final String[] CONTENT_ORIENTATION =
+      new String[] {MediaStore.Images.ImageColumns.ORIENTATION};
 
   private Utils() {
     // No instances.

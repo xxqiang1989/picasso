@@ -27,8 +27,7 @@ import static com.squareup.picasso.Utils.createKey;
 import static com.squareup.picasso.Utils.parseResponseSourceHeader;
 import static org.fest.assertions.api.Assertions.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@RunWith(RobolectricTestRunner.class) @Config(manifest = Config.NONE)
 public class UtilsTest {
 
   @Test public void matchingRequestsHaveSameKey() {

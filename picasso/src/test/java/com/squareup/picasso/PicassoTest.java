@@ -1,7 +1,7 @@
 package com.squareup.picasso;
 
 import android.content.Context;
-import java.io.IOException;
+import android.graphics.Bitmap;
 import java.util.concurrent.ExecutorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,14 +10,17 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 
 import static com.squareup.picasso.Picasso.Listener;
-import static com.squareup.picasso.TestUtils.URI_KEY_1;
+import static com.squareup.picasso.TestUtils.BITMAP_1;
 import static com.squareup.picasso.TestUtils.URI_1;
+import static com.squareup.picasso.TestUtils.URI_KEY_1;
 import static com.squareup.picasso.TestUtils.mockImageViewTarget;
 import static com.squareup.picasso.TestUtils.mockRequest;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(RobolectricTestRunner.class)
@@ -37,19 +40,32 @@ public class PicassoTest {
     picasso = new Picasso(context, downloader, dispatcher, cache, listener, stats, false);
   }
 
-  @Test public void submitWithNullTargetSkips() {
+  @Test public void submitWithNullTargetSkips() throws Exception {
     Request request = mockRequest(URI_KEY_1, URI_1, null);
     picasso.submit(request);
     verifyZeroInteractions(dispatcher);
   }
 
-  @Test public void submitWithTargetInvokesDispatcher() {
+  @Test public void submitWithTargetInvokesDispatcher() throws Exception {
     Request request = mockRequest(URI_KEY_1, URI_1, mockImageViewTarget());
     picasso.submit(request);
     verify(dispatcher).dispatchSubmit(request);
   }
 
-  @Test public void loadThrowsWithInvalidInput() throws IOException {
+  @Test public void quickMemoryCheckReturnsBitmapIfInCache() throws Exception {
+    when(cache.get(URI_KEY_1)).thenReturn(BITMAP_1);
+    Bitmap cached = picasso.quickMemoryCacheCheck(URI_KEY_1);
+    assertThat(cached).isEqualTo(BITMAP_1);
+    verify(stats).cacheHit();
+  }
+
+  @Test public void quickMemoryCheckReturnsNullIfNotInCache() throws Exception {
+    Bitmap cached = picasso.quickMemoryCacheCheck(URI_KEY_1);
+    assertThat(cached).isNull();
+    verifyZeroInteractions(stats);
+  }
+
+  @Test public void loadThrowsWithInvalidInput() throws Exception {
     try {
       picasso.load("");
       fail("Empty URL should throw exception.");

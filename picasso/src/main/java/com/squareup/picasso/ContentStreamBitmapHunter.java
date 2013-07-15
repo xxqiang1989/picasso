@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,10 +38,14 @@ class ContentStreamBitmapHunter extends BitmapHunter {
     }
     InputStream is = null;
     try {
-      is = contentResolver.openInputStream(path);
+      is = getInputStream(contentResolver, path);
       return BitmapFactory.decodeStream(contentResolver.openInputStream(path), null, bitmapOptions);
     } finally {
       Utils.closeQuietly(is);
     }
+  }
+
+  InputStream getInputStream(ContentResolver contentResolver, Uri uri) throws IOException {
+    return contentResolver.openInputStream(uri);
   }
 }

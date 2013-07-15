@@ -18,14 +18,18 @@ import static android.graphics.Bitmap.Config.ARGB_8888;
 import static com.squareup.picasso.BitmapHunter.forRequest;
 import static com.squareup.picasso.BitmapHunter.transformResult;
 import static com.squareup.picasso.TestUtils.BITMAP_1;
+import static com.squareup.picasso.TestUtils.CONTACT_KEY_1;
+import static com.squareup.picasso.TestUtils.CONTACT_PHOTO_KEY_1;
+import static com.squareup.picasso.TestUtils.CONTACT_PHOTO_URI_1;
+import static com.squareup.picasso.TestUtils.CONTACT_URI_1;
+import static com.squareup.picasso.TestUtils.CONTENT_1_URL;
+import static com.squareup.picasso.TestUtils.CONTENT_KEY_1;
 import static com.squareup.picasso.TestUtils.FILE_1_URL;
 import static com.squareup.picasso.TestUtils.FILE_KEY_1;
 import static com.squareup.picasso.TestUtils.RESOURCE_ID_1;
 import static com.squareup.picasso.TestUtils.RESOURCE_ID_KEY_1;
 import static com.squareup.picasso.TestUtils.URI_1;
-import static com.squareup.picasso.TestUtils.URI_2;
 import static com.squareup.picasso.TestUtils.URI_KEY_1;
-import static com.squareup.picasso.TestUtils.URI_KEY_2;
 import static com.squareup.picasso.TestUtils.mockCanceledRequest;
 import static com.squareup.picasso.TestUtils.mockImageViewTarget;
 import static com.squareup.picasso.TestUtils.mockRequest;
@@ -34,7 +38,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.entry;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.robolectric.Robolectric.shadowOf;
 
@@ -106,6 +109,18 @@ public class BitmapHunterTest {
 
   // ---------------------------------------
 
+  @Test public void forContentProviderRequest() {
+    Request request = mockRequest(CONTENT_KEY_1, CONTENT_1_URL);
+    BitmapHunter hunter = forRequest(context, dispatcher, request, downloader);
+    assertThat(hunter).isInstanceOf(ContentProviderBitmapHunter.class);
+  }
+
+  @Test public void forContactsPhotoRequest() {
+    Request request = mockRequest(CONTACT_KEY_1, CONTACT_URI_1);
+    BitmapHunter hunter = forRequest(context, dispatcher, request, downloader);
+    assertThat(hunter).isInstanceOf(ContactsPhotoBitmapHunter.class);
+  }
+
   @Test public void forNetworkRequest() {
     Request request = mockRequest(URI_KEY_1, URI_1);
     BitmapHunter hunter = forRequest(context, dispatcher, request, downloader);
@@ -124,7 +139,7 @@ public class BitmapHunterTest {
     assertThat(hunter).isInstanceOf(ResourceBitmapHunter.class);
   }
 
-  // TODO mor estatic forTests
+  // TODO more static forTests
 
   @Test public void exifRotation() {
     Bitmap source = Bitmap.createBitmap(10, 10, ARGB_8888);

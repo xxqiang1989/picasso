@@ -12,6 +12,8 @@ import java.util.Map;
 import static android.content.ContentResolver.SCHEME_ANDROID_RESOURCE;
 import static android.content.ContentResolver.SCHEME_CONTENT;
 import static android.content.ContentResolver.SCHEME_FILE;
+import static android.provider.ContactsContract.Contacts.CONTENT_URI;
+import static android.provider.ContactsContract.Contacts.Photo.CONTENT_DIRECTORY;
 
 abstract class BitmapHunter implements Runnable {
 
@@ -111,10 +113,15 @@ abstract class BitmapHunter implements Runnable {
     if (request.getResourceId() != 0) {
       return new ResourceBitmapHunter(context, dispatcher, request);
     }
-    String scheme = request.getUri().getScheme();
+    Uri uri = request.getUri();
+    String scheme = uri.getScheme();
     if (SCHEME_CONTENT.equals(scheme)) {
-      // TODO Contacts URI whatever needed here.
-      return new ContentProviderBitmapHunter(context, dispatcher, request);
+      if (CONTENT_URI.getHost().equals(uri.getHost()) //
+          && !uri.getPathSegments().contains(CONTENT_DIRECTORY)) {
+        return new ContactsPhotoBitmapHunter(context, dispatcher, request);
+      } else {
+        return new ContentProviderBitmapHunter(context, dispatcher, request);
+      }
     } else if (SCHEME_FILE.equals(scheme)) {
       return new FileBitmapHunter(dispatcher, request, context);
     } else if (SCHEME_ANDROID_RESOURCE.equals(scheme)) {

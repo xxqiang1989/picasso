@@ -23,9 +23,12 @@ public class TestUtils {
   static final Uri FILE_1_URL = Uri.parse("file:///" + FILE_1.getPath());
   static final Uri FILE_1_URL_NO_AUTHORITY = Uri.parse("file:/" + FILE_1.getParent());
   static final Uri CONTENT_1_URL = Uri.parse("content://zip/zap/zoop.jpg");
-  static final Uri CONTACT_URI = CONTENT_URI.buildUpon().path("1234").build();
-  static final Uri CONTACT_PHOTO_URI =
+  static final String CONTENT_KEY_1 = createKey(CONTENT_1_URL, 0, null, null);
+  static final Uri CONTACT_URI_1 = CONTENT_URI.buildUpon().path("1234").build();
+  static final String CONTACT_KEY_1 = createKey(CONTACT_URI_1, 0, null, null);
+  static final Uri CONTACT_PHOTO_URI_1 =
       CONTENT_URI.buildUpon().path("1234").path(CONTENT_DIRECTORY).build();
+  static final String CONTACT_PHOTO_KEY_1 = createKey(CONTACT_PHOTO_URI_1, 0, null, null);
   static final int RESOURCE_ID_1 = 1;
   static final String RESOURCE_ID_KEY_1 = createKey(null, RESOURCE_ID_1, null, null);
 

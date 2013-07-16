@@ -46,6 +46,7 @@ public class TestUtils {
     when(request.getUri()).thenReturn(uri);
     when(request.getTarget()).thenReturn(target);
     when(request.getResourceId()).thenReturn(resourceId);
+    when(request.getPicasso()).thenReturn(mock(Picasso.class));
     return request;
   }
 

@@ -38,7 +38,7 @@ public class DispatcherTest {
 
   @Before public void setUp() throws Exception {
     initMocks(this);
-    dispatcher = new Dispatcher(context, service, downloader, cache);
+    dispatcher = new Dispatcher(context, service, mainThreadHandler, downloader, cache);
   }
 
   @Test public void performSubmitWithNewRequestQueuesHunter() throws Exception {

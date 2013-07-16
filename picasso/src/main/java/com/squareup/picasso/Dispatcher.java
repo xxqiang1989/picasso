@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
-import static com.squareup.picasso.Picasso.HANDLER;
 import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
 
 class Dispatcher {
@@ -44,9 +43,11 @@ class Dispatcher {
   final Downloader downloader;
   final Map<String, BitmapHunter> hunterMap;
   final Handler handler;
+  final Handler mainThreadHandler;
   final Cache cache;
 
-  Dispatcher(Context context, ExecutorService service, Downloader downloader, Cache cache) {
+  Dispatcher(Context context, ExecutorService service, Handler mainThreadHandler,
+      Downloader downloader, Cache cache) {
     DispatcherThread thread = new DispatcherThread();
     thread.start();
     this.context = context;
@@ -54,6 +55,7 @@ class Dispatcher {
     this.hunterMap = new LinkedHashMap<String, BitmapHunter>();
     this.handler = new DispatcherHandler(thread.getLooper());
     this.downloader = downloader;
+    this.mainThreadHandler = mainThreadHandler;
     this.cache = cache;
   }
 
@@ -76,7 +78,7 @@ class Dispatcher {
   void performSubmit(Request request) {
     BitmapHunter hunter = hunterMap.get(request.getKey());
     if (hunter == null) {
-      hunter = BitmapHunter.forRequest(context, request.picasso, this, request, downloader);
+      hunter = BitmapHunter.forRequest(context, request.getPicasso(), this, request, downloader);
       hunter.attach(request);
 
       Bitmap cache = loadFromCache(request);
@@ -107,12 +109,12 @@ class Dispatcher {
       cache.set(hunter.getKey(), hunter.getResult());
     }
     hunterMap.remove(hunter.getKey());
-    HANDLER.sendMessage(HANDLER.obtainMessage(REQUEST_COMPLETE, hunter));
+    mainThreadHandler.sendMessage(mainThreadHandler.obtainMessage(REQUEST_COMPLETE, hunter));
   }
 
   void performError(BitmapHunter hunter) {
     hunterMap.remove(hunter.getKey());
-    HANDLER.sendMessage(HANDLER.obtainMessage(REQUEST_FAILED, hunter));
+    mainThreadHandler.sendMessage(mainThreadHandler.obtainMessage(REQUEST_FAILED, hunter));
   }
 
   private Bitmap loadFromCache(Request request) {

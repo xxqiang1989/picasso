@@ -7,7 +7,6 @@ import android.net.Uri;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static android.content.ContentResolver.SCHEME_ANDROID_RESOURCE;
 import static android.content.ContentResolver.SCHEME_CONTENT;
@@ -38,6 +37,7 @@ abstract class BitmapHunter implements Runnable {
   Bitmap result;
   LoadedFrom loadedFrom;
   List<Request> joined;
+  Exception exception;
 
   int retryCount = DEFAULT_RETRY_COUNT;
 
@@ -62,6 +62,7 @@ abstract class BitmapHunter implements Runnable {
         dispatcher.dispatchComplete(this);
       }
     } catch (IOException e) {
+      exception = e;
       dispatcher.dispatchRetry(this);
     }
   }

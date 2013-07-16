@@ -33,7 +33,6 @@ import java.util.concurrent.Executors;
 
 import static com.squareup.picasso.Dispatcher.REQUEST_COMPLETE;
 import static com.squareup.picasso.Dispatcher.REQUEST_FAILED;
-import static com.squareup.picasso.Utils.checkNotMain;
 
 /**
  * Image downloading, transformation, and caching manager.
@@ -57,10 +56,10 @@ public class Picasso {
       BitmapHunter hunter = (BitmapHunter) msg.obj;
       switch (msg.what) {
         case REQUEST_COMPLETE:
-          hunter.picasso.complete(hunter.joined, hunter.result, hunter.loadedFrom);
+          hunter.picasso.complete(hunter.joined, hunter.result, hunter.getLoadedFrom());
           break;
         case REQUEST_FAILED:
-          hunter.picasso.error(hunter.joined);
+          hunter.picasso.error(hunter.joined, hunter.uri, hunter.exception);
           break;
         default:
           throw new AssertionError("Unknown handler message received: " + msg.what);
@@ -221,12 +220,16 @@ public class Picasso {
     }
   }
 
-  void error(List<Request> joined) {
+  void error(List<Request> joined, Uri uri, Exception exception) {
     for (Request join : joined) {
       if (!join.isCancelled()) {
         targetToRequests.remove(join.getTarget());
         join.error();
       }
+    }
+
+    if (listener != null && exception != null) {
+      listener.onImageLoadFailed(this, uri, exception);
     }
   }
 
@@ -352,7 +355,7 @@ public class Picasso {
 
       Stats stats = new Stats(cache);
 
-      Dispatcher dispatcher = new Dispatcher(context, service, downloader, cache);
+      Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, downloader, cache);
 
       return new Picasso(context, downloader, dispatcher, cache, listener, stats, debugging);
     }

@@ -308,7 +308,7 @@ public class RequestBuilder {
    * <em>Note:</em> This method keeps a strong reference to the {@link Target} instance.
    */
   public void fetch(Target target) {
-    throw new UnsupportedOperationException("NOT YET");
+    // TODO
   }
 
   /**

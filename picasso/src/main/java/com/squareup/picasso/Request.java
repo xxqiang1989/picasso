@@ -123,4 +123,8 @@ class Request {
   boolean isCancelled() {
     return cancelled;
   }
+
+  Picasso getPicasso() {
+    return picasso;
+  }
 }

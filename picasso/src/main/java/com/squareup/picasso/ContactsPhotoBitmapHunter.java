@@ -13,8 +13,9 @@ class ContactsPhotoBitmapHunter extends StreamBitmapHunter {
 
   final Context context;
 
-  ContactsPhotoBitmapHunter(Context context, Dispatcher dispatcher, Request request) {
-    super(dispatcher, request);
+  ContactsPhotoBitmapHunter(Context context, Picasso picasso, Dispatcher dispatcher,
+      Request request) {
+    super(picasso, dispatcher, request);
     this.context = context;
   }
 

@@ -7,8 +7,8 @@ import java.io.InputStream;
 
 abstract class StreamBitmapHunter extends BitmapHunter {
 
-  public StreamBitmapHunter(Dispatcher dispatcher, Request request) {
-    super(dispatcher, request);
+  public StreamBitmapHunter(Picasso picasso, Dispatcher dispatcher, Request request) {
+    super(picasso, dispatcher, request);
   }
 
   @Override final Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {

@@ -26,6 +26,7 @@ import java.util.List;
 import org.jetbrains.annotations.TestOnly;
 
 import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
+import static com.squareup.picasso.Utils.checkNotMain;
 import static com.squareup.picasso.Utils.createKey;
 
 /** Fluent API for building an image download request. */
@@ -289,6 +290,8 @@ public class RequestBuilder {
 
   /** Synchronously fulfill this request. Must not be called from the main thread. */
   public Bitmap get() throws IOException {
+    checkNotMain();
+
     if (uri == null && resourceId == 0) {
       return null;
     }

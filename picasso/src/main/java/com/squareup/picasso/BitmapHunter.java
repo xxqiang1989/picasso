@@ -27,6 +27,7 @@ abstract class BitmapHunter implements Runnable {
 
   static final int DEFAULT_RETRY_COUNT = 2;
 
+  final Picasso picasso;
   final Dispatcher dispatcher;
   final String key;
   final Uri uri;
@@ -40,7 +41,8 @@ abstract class BitmapHunter implements Runnable {
 
   int retryCount = DEFAULT_RETRY_COUNT;
 
-  BitmapHunter(Dispatcher dispatcher, Request request) {
+  BitmapHunter(Picasso picasso, Dispatcher dispatcher, Request request) {
+    this.picasso = picasso;
     this.dispatcher = dispatcher;
     this.key = request.key;
     this.uri = request.uri;
@@ -88,25 +90,6 @@ abstract class BitmapHunter implements Runnable {
     joined.add(request);
   }
 
-  void complete(Map<Object, Request> targetsToRequests) {
-    LoadedFrom from = getLoadedFrom();
-    for (Request join : joined) {
-      if (!join.isCancelled()) {
-        targetsToRequests.remove(join.getTarget());
-        join.complete(result, from);
-      }
-    }
-  }
-
-  void error(Map<Object, Request> targetsToRequests) {
-    for (Request join : joined) {
-      if (!join.isCancelled()) {
-        targetsToRequests.remove(join.getTarget());
-        join.error();
-      }
-    }
-  }
-
   boolean shouldSkipCache() {
     return skipCache;
   }
@@ -119,26 +102,26 @@ abstract class BitmapHunter implements Runnable {
     return key;
   }
 
-  static BitmapHunter forRequest(Context context, Dispatcher dispatcher, Request request,
-      Downloader downloader) {
+  static BitmapHunter forRequest(Context context, Picasso picasso, Dispatcher dispatcher,
+      Request request, Downloader downloader) {
     if (request.getResourceId() != 0) {
-      return new ResourceBitmapHunter(context, dispatcher, request);
+      return new ResourceBitmapHunter(context, picasso, dispatcher, request);
     }
     Uri uri = request.getUri();
     String scheme = uri.getScheme();
     if (SCHEME_CONTENT.equals(scheme)) {
       if (CONTENT_URI.getHost().equals(uri.getHost()) //
           && !uri.getPathSegments().contains(CONTENT_DIRECTORY)) {
-        return new ContactsPhotoBitmapHunter(context, dispatcher, request);
+        return new ContactsPhotoBitmapHunter(context, picasso, dispatcher, request);
       } else {
-        return new ContentProviderBitmapHunter(context, dispatcher, request);
+        return new ContentProviderBitmapHunter(context, picasso, dispatcher, request);
       }
     } else if (SCHEME_FILE.equals(scheme)) {
-      return new FileBitmapHunter(dispatcher, request, context);
+      return new FileBitmapHunter(context, picasso, dispatcher, request);
     } else if (SCHEME_ANDROID_RESOURCE.equals(scheme)) {
-      return new ResourceBitmapHunter(context, dispatcher, request);
+      return new ResourceBitmapHunter(context, picasso, dispatcher, request);
     } else {
-      return new NetworkBitmapHunter(dispatcher, request, downloader);
+      return new NetworkBitmapHunter(picasso, dispatcher, request, downloader);
     }
   }
 

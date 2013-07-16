@@ -3,7 +3,6 @@ package com.squareup.picasso;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class DispatcherTest {
 
   @Before public void setUp() throws Exception {
     initMocks(this);
-    dispatcher = new Dispatcher(context, service, mainThreadHandler, downloader, cache);
+    dispatcher = new Dispatcher(context, service, downloader, cache);
   }
 
   @Test public void performSubmitWithNewRequestQueuesHunter() throws Exception {

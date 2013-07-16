@@ -15,8 +15,8 @@ class ResourceBitmapHunter extends BitmapHunter {
   private final int resourceId;
   private final Context context;
 
-  ResourceBitmapHunter(Context context, Dispatcher dispatcher, Request request) {
-    super(dispatcher, request);
+  ResourceBitmapHunter(Context context, Picasso picasso, Dispatcher dispatcher, Request request) {
+    super(picasso, dispatcher, request);
     this.context = context;
     this.resourceId = request.resourceId;
   }

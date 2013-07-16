@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
@@ -51,17 +52,15 @@ public class Picasso {
     void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception);
   }
 
-  static final Map<Object, Request> targetsToRequests = new WeakHashMap<Object, Request>();
-
   static final Handler HANDLER = new Handler(Looper.getMainLooper()) {
     @Override public void handleMessage(Message msg) {
       BitmapHunter hunter = (BitmapHunter) msg.obj;
       switch (msg.what) {
         case REQUEST_COMPLETE:
-          hunter.complete(targetsToRequests);
+          hunter.picasso.complete(hunter.joined, hunter.result, hunter.loadedFrom);
           break;
         case REQUEST_FAILED:
-          hunter.error(targetsToRequests);
+          hunter.picasso.error(hunter.joined);
           break;
         default:
           throw new AssertionError("Unknown handler message received: " + msg.what);
@@ -77,6 +76,7 @@ public class Picasso {
   final Cache cache;
   final Listener listener;
   final Stats stats;
+  final Map<Object, Request> targetToRequests = new WeakHashMap<Object, Request>();
   final ReferenceQueue<Object> referenceQueue;
 
   boolean debugging;
@@ -194,14 +194,13 @@ public class Picasso {
     Object target = request.getTarget();
     if (target == null) return;
     cancelExistingRequest(target);
-    targetsToRequests.put(target, request);
+    targetToRequests.put(target, request);
     dispatcher.dispatchSubmit(request);
   }
 
   // Used by get() requests.
   Bitmap execute(Request request) throws IOException {
-    checkNotMain();
-    BitmapHunter hunter = BitmapHunter.forRequest(context, dispatcher, request, downloader);
+    BitmapHunter hunter = BitmapHunter.forRequest(context, this, dispatcher, request, downloader);
     return hunter.hunt();
   }
 
@@ -213,8 +212,26 @@ public class Picasso {
     return cached;
   }
 
+  void complete(List<Request> joined, Bitmap result, Request.LoadedFrom from) {
+    for (Request join : joined) {
+      if (!join.isCancelled()) {
+        targetToRequests.remove(join.getTarget());
+        join.complete(result, from);
+      }
+    }
+  }
+
+  void error(List<Request> joined) {
+    for (Request join : joined) {
+      if (!join.isCancelled()) {
+        targetToRequests.remove(join.getTarget());
+        join.error();
+      }
+    }
+  }
+
   private void cancelExistingRequest(Object target) {
-    Request existing = targetsToRequests.get(target);
+    Request existing = targetToRequests.get(target);
     cancelExistingRequest(existing);
   }
 
@@ -335,7 +352,7 @@ public class Picasso {
 
       Stats stats = new Stats(cache);
 
-      Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, downloader, cache);
+      Dispatcher dispatcher = new Dispatcher(context, service, downloader, cache);
 
       return new Picasso(context, downloader, dispatcher, cache, listener, stats, debugging);
     }

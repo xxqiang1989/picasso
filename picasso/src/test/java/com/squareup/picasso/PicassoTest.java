@@ -2,6 +2,8 @@ package com.squareup.picasso;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,14 +12,19 @@ import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 
 import static com.squareup.picasso.Picasso.Listener;
+import static com.squareup.picasso.Request.LoadedFrom;
 import static com.squareup.picasso.TestUtils.BITMAP_1;
 import static com.squareup.picasso.TestUtils.URI_1;
 import static com.squareup.picasso.TestUtils.URI_KEY_1;
+import static com.squareup.picasso.TestUtils.mockCanceledRequest;
 import static com.squareup.picasso.TestUtils.mockImageViewTarget;
 import static com.squareup.picasso.TestUtils.mockRequest;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -63,6 +70,24 @@ public class PicassoTest {
     Bitmap cached = picasso.quickMemoryCacheCheck(URI_KEY_1);
     assertThat(cached).isNull();
     verifyZeroInteractions(stats);
+  }
+
+  @Test public void completeInvokesAllNonCanceledRequests() throws Exception {
+    Request request1 = mockRequest(URI_KEY_1, URI_1, mockImageViewTarget());
+    Request request2 = mockCanceledRequest();
+    List<Request> list = Arrays.asList(request1, request2);
+    picasso.complete(list, BITMAP_1, LoadedFrom.MEMORY);
+    verify(request1).complete(BITMAP_1, LoadedFrom.MEMORY);
+    verify(request2, never()).complete(eq(BITMAP_1), any(LoadedFrom.class));
+  }
+
+  @Test public void errorInvokesAllNonCanceledRequests() throws Exception {
+    Request request1 = mockRequest(URI_KEY_1, URI_1, mockImageViewTarget());
+    Request request2 = mockCanceledRequest();
+    List<Request> list = Arrays.asList(request1, request2);
+    picasso.error(list);
+    verify(request1).error();
+    verify(request2, never()).error();
   }
 
   @Test public void loadThrowsWithInvalidInput() throws Exception {

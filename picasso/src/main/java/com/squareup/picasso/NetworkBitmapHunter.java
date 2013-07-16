@@ -15,8 +15,9 @@ class NetworkBitmapHunter extends StreamBitmapHunter {
   private final Downloader downloader;
   private LoadedFrom loadedFrom;
 
-  public NetworkBitmapHunter(Dispatcher dispatcher, Request request, Downloader downloader) {
-    super(dispatcher, request);
+  public NetworkBitmapHunter(Picasso picasso, Dispatcher dispatcher, Request request,
+      Downloader downloader) {
+    super(picasso, dispatcher, request);
     this.downloader = downloader;
   }
 

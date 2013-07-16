@@ -7,8 +7,9 @@ import java.io.IOException;
 
 class ContentProviderBitmapHunter extends ContentStreamBitmapHunter {
 
-  ContentProviderBitmapHunter(Context context, Dispatcher dispatcher, Request request) {
-    super(context, dispatcher, request);
+  ContentProviderBitmapHunter(Context context, Picasso picasso, Dispatcher dispatcher,
+      Request request) {
+    super(context, picasso, dispatcher, request);
   }
 
   @Override Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {

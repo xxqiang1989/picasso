@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
 
 class Dispatcher {
   private static final int RETRY_DELAY = 500;
@@ -82,6 +83,7 @@ class Dispatcher {
 
       Bitmap cache = loadFromCache(request);
       if (cache != null) {
+        hunter.loadedFrom = MEMORY;
         performComplete(hunter);
         return;
       }
@@ -117,12 +119,7 @@ class Dispatcher {
 
   private Bitmap loadFromCache(Request request) {
     if (request.skipCache) return null;
-
-    Bitmap cached = cache.get(request.getKey());
-    if (cached != null) {
-      request.loadedFrom = Request.LoadedFrom.MEMORY;
-    }
-    return cached;
+    return cache.get(request.getKey());
   }
 
   private class DispatcherHandler extends Handler {

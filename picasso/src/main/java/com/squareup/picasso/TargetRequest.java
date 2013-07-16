@@ -36,7 +36,7 @@ final class TargetRequest extends Request {
     return weakTarget.get();
   }
 
-  @Override void complete(Bitmap result) {
+  @Override void complete(Bitmap result, LoadedFrom from) {
     if (result == null) {
       throw new AssertionError(
           String.format("Attempted to complete request with no result!\n%s", this));

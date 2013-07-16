@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.squareup.picasso.Request.LoadedFrom.DISK;
 import static com.squareup.picasso.Utils.calculateInSampleSize;
 
 class ContactsPhotoBitmapHunter extends StreamBitmapHunter {
@@ -33,5 +34,9 @@ class ContactsPhotoBitmapHunter extends StreamBitmapHunter {
       calculateInSampleSize(options);
     }
     return BitmapFactory.decodeStream(stream, null, options);
+  }
+
+  @Override Request.LoadedFrom getLoadedFrom() {
+    return DISK;
   }
 }

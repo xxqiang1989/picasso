@@ -11,8 +11,8 @@ class FileBitmapHunter extends ContentStreamBitmapHunter {
     super(context, dispatcher, request);
   }
 
-  @Override Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException {
+  @Override Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {
     options.exifRotation = Utils.getFileExifRotation(uri.getPath());
-    return super.load(uri, options);
+    return super.decode(uri, options);
   }
 }

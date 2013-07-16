@@ -17,6 +17,8 @@ import org.robolectric.shadows.ShadowMatrix;
 import static android.graphics.Bitmap.Config.ARGB_8888;
 import static com.squareup.picasso.BitmapHunter.forRequest;
 import static com.squareup.picasso.BitmapHunter.transformResult;
+import static com.squareup.picasso.Request.LoadedFrom;
+import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
 import static com.squareup.picasso.TestUtils.BITMAP_1;
 import static com.squareup.picasso.TestUtils.CONTACT_KEY_1;
 import static com.squareup.picasso.TestUtils.CONTACT_URI_1;
@@ -34,6 +36,7 @@ import static com.squareup.picasso.TestUtils.mockRequest;
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.entry;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -89,8 +92,8 @@ public class BitmapHunterTest {
     hunter.attach(request2);
     hunter.run();
     hunter.complete(new HashMap<Object, Request>()); // TODO
-    verify(request1).complete(BITMAP_1);
-    verify(request2, never()).complete(BITMAP_1);
+    verify(request1).complete(BITMAP_1, MEMORY);
+    verify(request2, never()).complete(BITMAP_1, any(LoadedFrom.class));
   }
 
   @Test public void errorInvokesAllNonCanceledRequests() throws Exception {
@@ -409,11 +412,15 @@ public class BitmapHunterTest {
       this.throwException = throwException;
     }
 
-    @Override Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException {
+    @Override Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {
       if (throwException) {
         throw new IOException("Failed.");
       }
       return result;
+    }
+
+    @Override LoadedFrom getLoadedFrom() {
+      return MEMORY;
     }
   }
 }

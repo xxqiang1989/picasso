@@ -6,10 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.squareup.picasso.Downloader.Response;
+import static com.squareup.picasso.Request.LoadedFrom;
+import static com.squareup.picasso.Request.LoadedFrom.DISK;
+import static com.squareup.picasso.Request.LoadedFrom.NETWORK;
 import static com.squareup.picasso.Utils.calculateInSampleSize;
 
 class NetworkBitmapHunter extends StreamBitmapHunter {
   private final Downloader downloader;
+  private LoadedFrom loadedFrom;
 
   public NetworkBitmapHunter(Dispatcher dispatcher, Request request, Downloader downloader) {
     super(dispatcher, request);
@@ -18,6 +22,7 @@ class NetworkBitmapHunter extends StreamBitmapHunter {
 
   @Override InputStream getInputStream() throws IOException {
     Response response = downloader.load(uri, false);
+    loadedFrom = response.cached ? DISK : NETWORK;
     return response.stream;
   }
 
@@ -41,5 +46,9 @@ class NetworkBitmapHunter extends StreamBitmapHunter {
     } finally {
       Utils.closeQuietly(stream);
     }
+  }
+
+  @Override LoadedFrom getLoadedFrom() {
+    return loadedFrom;
   }
 }

@@ -21,10 +21,12 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import static com.squareup.picasso.Request.LoadedFrom;
 import static com.squareup.picasso.TestUtils.BITMAP_1;
 import static com.squareup.picasso.TestUtils.URI_1;
 import static com.squareup.picasso.TestUtils.URI_KEY_1;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricTestRunner.class) @Config(manifest = Config.NONE)
@@ -44,7 +46,7 @@ public class TargetRequestTest {
     TargetRequest tr =
         new TargetRequest(picasso, URI_1, 0, bad, null, null, false, URI_KEY_1);
     try {
-      tr.complete(BITMAP_1);
+      tr.complete(BITMAP_1, any(LoadedFrom.class));
       fail();
     } catch (IllegalStateException expected) {
     }

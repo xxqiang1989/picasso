@@ -8,6 +8,7 @@ import android.net.Uri;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.squareup.picasso.Request.LoadedFrom.DISK;
 import static com.squareup.picasso.Utils.calculateInSampleSize;
 
 class ContentStreamBitmapHunter extends BitmapHunter {
@@ -19,8 +20,12 @@ class ContentStreamBitmapHunter extends BitmapHunter {
     this.context = context;
   }
 
-  @Override Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException {
+  @Override Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {
     return decodeContentStream(uri, options);
+  }
+
+  @Override Request.LoadedFrom getLoadedFrom() {
+    return DISK;
   }
 
   Bitmap decodeContentStream(Uri path, PicassoBitmapOptions options) throws IOException {

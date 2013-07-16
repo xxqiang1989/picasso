@@ -11,7 +11,7 @@ abstract class StreamBitmapHunter extends BitmapHunter {
     super(dispatcher, request);
   }
 
-  @Override final Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException {
+  @Override final Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException {
     return decodeStream(getInputStream(), options);
   }
 

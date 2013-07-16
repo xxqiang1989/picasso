@@ -60,7 +60,6 @@ class Request {
   final Drawable errorDrawable;
   final String key;
 
-  LoadedFrom loadedFrom;
   boolean cancelled;
 
   Request(Picasso picasso, Uri uri, int resourceId, ImageView imageView,
@@ -83,7 +82,7 @@ class Request {
     return target.get();
   }
 
-  void complete(Bitmap result) {
+  void complete(Bitmap result, LoadedFrom from) {
     if (result == null) {
       throw new AssertionError(
           String.format("Attempted to complete request with no result!\n%s", this));
@@ -93,7 +92,7 @@ class Request {
     if (target != null) {
       Context context = picasso.context;
       boolean debugging = picasso.debugging;
-      PicassoDrawable.setBitmap(target, context, result, loadedFrom, noFade, debugging);
+      PicassoDrawable.setBitmap(target, context, result, from, noFade, debugging);
     }
   }
 

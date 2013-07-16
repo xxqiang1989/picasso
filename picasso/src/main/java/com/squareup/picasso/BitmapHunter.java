@@ -14,6 +14,7 @@ import static android.content.ContentResolver.SCHEME_CONTENT;
 import static android.content.ContentResolver.SCHEME_FILE;
 import static android.provider.ContactsContract.Contacts.CONTENT_URI;
 import static android.provider.ContactsContract.Contacts.Photo.CONTENT_DIRECTORY;
+import static com.squareup.picasso.Request.LoadedFrom;
 
 abstract class BitmapHunter implements Runnable {
 
@@ -34,6 +35,7 @@ abstract class BitmapHunter implements Runnable {
   final boolean skipCache;
 
   Bitmap result;
+  LoadedFrom loadedFrom;
   List<Request> joined;
 
   int retryCount = DEFAULT_RETRY_COUNT;
@@ -62,17 +64,21 @@ abstract class BitmapHunter implements Runnable {
     }
   }
 
-  abstract Bitmap load(Uri uri, PicassoBitmapOptions options) throws IOException;
+  abstract Bitmap decode(Uri uri, PicassoBitmapOptions options) throws IOException;
+
+  abstract LoadedFrom getLoadedFrom();
 
   Bitmap hunt() throws IOException {
-    Bitmap bitmap = load(uri, options);
+    Bitmap bitmap = decode(uri, options);
 
-    if (options != null) {
-      bitmap = transformResult(options, bitmap, options.exifRotation);
-    }
+    synchronized (DECODE_LOCK) {
+      if (options != null) {
+        bitmap = transformResult(options, bitmap, options.exifRotation);
+      }
 
-    if (transformations != null) {
-      bitmap = applyCustomTransformations(transformations, bitmap);
+      if (transformations != null) {
+        bitmap = applyCustomTransformations(transformations, bitmap);
+      }
     }
 
     return bitmap;
@@ -83,10 +89,11 @@ abstract class BitmapHunter implements Runnable {
   }
 
   void complete(Map<Object, Request> targetsToRequests) {
+    LoadedFrom from = getLoadedFrom();
     for (Request join : joined) {
       if (!join.isCancelled()) {
         targetsToRequests.remove(join.getTarget());
-        join.complete(result);
+        join.complete(result, from);
       }
     }
   }
@@ -234,13 +241,11 @@ abstract class BitmapHunter implements Runnable {
       matrix.preRotate(exifRotation);
     }
 
-    synchronized (DECODE_LOCK) {
-      Bitmap newResult =
-          Bitmap.createBitmap(result, drawX, drawY, drawWidth, drawHeight, matrix, false);
-      if (newResult != result) {
-        result.recycle();
-        result = newResult;
-      }
+    Bitmap newResult =
+        Bitmap.createBitmap(result, drawX, drawY, drawWidth, drawHeight, matrix, false);
+    if (newResult != result) {
+      result.recycle();
+      result = newResult;
     }
 
     return result;

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jetbrains.annotations.TestOnly;
 
+import static com.squareup.picasso.Request.LoadedFrom.MEMORY;
 import static com.squareup.picasso.Utils.createKey;
 
 /** Fluent API for building an image download request. */
@@ -304,7 +305,7 @@ public class RequestBuilder {
    * <em>Note:</em> This method keeps a strong reference to the {@link Target} instance.
    */
   public void fetch(Target target) {
-    makeTargetRequest(target, true);
+    throw new UnsupportedOperationException("NOT YET");
   }
 
   /**
@@ -314,7 +315,29 @@ public class RequestBuilder {
    * automatically support object recycling.
    */
   public void into(Target target) {
-    makeTargetRequest(target, false);
+    if (target == null) {
+      throw new IllegalArgumentException("Target must not be null.");
+    }
+
+    if (uri == null && resourceId == 0) {
+      picasso.cancelRequest(target);
+      return;
+    }
+
+    String requestKey = createKey(uri, resourceId, options, transformations);
+
+    Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
+    if (bitmap != null) {
+      picasso.cancelRequest(target);
+      target.onSuccess(bitmap);
+      return;
+    }
+
+    Request request =
+        new TargetRequest(picasso, uri, resourceId, target, options, transformations, skipCache,
+            requestKey);
+
+    picasso.submit(request);
   }
 
   /**
@@ -339,7 +362,7 @@ public class RequestBuilder {
     Bitmap bitmap = picasso.quickMemoryCacheCheck(requestKey);
     if (bitmap != null) {
       picasso.cancelRequest(target);
-      target.setImageBitmap(bitmap);
+      PicassoDrawable.setBitmap(target, picasso.context, bitmap, MEMORY, noFade, picasso.debugging);
       return;
     }
 
@@ -377,8 +400,8 @@ public class RequestBuilder {
     }
 
     Request request =
-        new TargetRequest(picasso, uri, resourceId, target, options, transformations,
-            skipCache, requestKey);
+        new TargetRequest(picasso, uri, resourceId, target, options, transformations, skipCache,
+            requestKey);
 
     picasso.submit(request);
   }
